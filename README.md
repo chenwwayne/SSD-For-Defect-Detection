@@ -21,7 +21,33 @@ A [PyTorch](http://pytorch.org/) implementation of [Single Shot MultiBox Detecto
 ## Pay attention to
 - Note that <YOUR_CLASS>_CLASSES must contain (n+1) classes, if in config.py you list len(num_classes) ==  n.
 - Training on custom dataset,you may need to modify \*.py files under ./data/ yourself
-
+- when nan loss accurs, you'd better turn down the lr. i.e:1e-4 
+- fix a bug : The shape of the mask [32, 8732] at index 0 does not match the shape of the indexed tensor [279424, 1] at index 0
+  * step1:  
+  ```
+   switch the two lines 97,98 in multibox_loss.py:
+   loss_c = loss_c.view(num, -1)
+   loss_c[pos] = 0 # filter out pos boxes for now
+  ```
+  * step2:
+  switch:
+      ```
+        N = num_pos.data.sum()
+        loss_l /= N
+        loss_c /= N
+        return loss_l, loss_c
+      ```
+    to
+      ```
+        N = num_pos.data.sum().double()
+        loss_l = loss_l.double()
+        loss_c = loss_c.double()
+        loss_l /= N
+        loss_c /= N
+        return loss_l, loss_c
+      ```
+  * step3:
+    change all data[0] to data.item() in train.py, i.e: loss_l.data[0] -> loss_l.data.item()
 ## Installation
 - Install [PyTorch](http://pytorch.org/) by selecting your environment on the website and running the appropriate command.
 - Clone this repository.
