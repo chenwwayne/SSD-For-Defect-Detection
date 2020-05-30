@@ -121,8 +121,11 @@ class d13Detection(data.Dataset):
         # target = ET.parse(self._annopath % img_id).getroot()
         # img = cv2.imread(self._imgpath % img_id)
         # height, width, channels = img.shape
-
-        target = ET.parse(img_id[:-4] + '.xml')
+        try:
+            target = ET.parse(img_id[:-4] + '.xml')
+        except:
+            print(img_id[:-4] + '.xml' + 'is not found')
+            assert 0
         img = cv2.imread(img_id)
         height, width, channels = img.shape
 
